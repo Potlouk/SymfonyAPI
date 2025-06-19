@@ -1,0 +1,102 @@
+security:
+    password_hashers:
+        Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface: 'auto'
+    providers:
+        users_in_memory: { memory: null }
+        app_user_provider: 
+            entity:
+                class: App\Entity\User
+                property: email
+    firewalls:
+        dev:
+            provider: app_user_provider
+            custom_authenticators:
+                - App\Security\ApiAuthenticator
+        main:
+            lazy: true
+            provider: app_user_provider
+            custom_authenticators:
+                - App\Security\ApiAuthenticator
+    
+    access_control:
+        
+        #Document endpoints
+        - { path: ^/document/paginate/\d+/\d+$,      methods: [POST],   roles: ROLE_PAGINATE_DOCUMENT }
+        - { path: ^/document/submit/[0-9a-fA-F\-]+$, methods: [POST],   roles: ROLE_SUBMIT_DOCUMENT }
+        - { path: ^/document/label/[0-9a-fA-F\-]+$,  methods: [PUT],    roles: ROLE_LABEL_DOCUMENT }
+        - { path: ^/document/assign/[0-9a-fA-F\-]+$, methods: [PUT],    roles: ROLE_ASSIGN_DOCUMENT }
+        - { path: ^/document/reopen/[0-9a-fA-F\-]+$, methods: [PUT],    roles: ROLE_SHARE_DOCUMENT }
+        - { path: ^/document/report/[0-9a-fA-F\-]+$, methods: [POST],   roles: ROLE_CREATE_DOCUMENT }
+        - { path: ^/document/share/[0-9a-fA-F\-]+$,  methods: [POST],   roles: ROLE_SHARE_DOCUMENT }
+        - { path: ^/document/unshare/[0-9a-fA-F\-]+$,methods: [PUT],    roles: ROLE_SHARE_DOCUMENT }
+        - { path: ^/document/move/[0-9a-fA-F\-]+$,   methods: [PATCH],  roles: ROLE_PATCH_DOCUMENT }
+        - { path: ^/document/[0-9a-fA-F\-]+$,        methods: [GET],    roles: ROLE_GET_DOCUMENT }
+        - { path: ^/document/[0-9a-fA-F\-]+$,        methods: [DELETE], roles: ROLE_DELETE_DOCUMENT }
+        - { path: ^/document/[0-9a-fA-F\-]+$,        methods: [PATCH],  roles: ROLE_PATCH_DOCUMENT }
+        - { path: ^/document,                        methods: [POST],   roles: ROLE_CREATE_DOCUMENT }
+
+        #User endpoints
+        - { path: ^/user/\d+$,                methods: [GET],      roles: ROLE_GET_USER }
+        - { path: ^/user/\d+$,                methods: [PATCH],    roles: ROLE_PATCH_USER }
+        - { path: ^/user/\d+$,                methods: [DELETE],   roles: ROLE_DELETE_USER }
+        - { path: ^/user,                     methods: [POST],     roles: ROLE_CREATE_USER }
+        - { path: ^/user/get/all,             methods: [GET],      roles: ROLE_LIST_USER }
+
+        #User endpoints
+        - { path: ^/role/\d+$,                methods: [GET],       roles: ROLE_GET_ROLE }
+        - { path: ^/role/\d+$,                methods: [DELETE],    roles: ROLE_DELETE_ROLE }
+        - { path: ^/role/\d+$,                methods: [PATCH],     roles: ROLE_PATCH_ROLE }
+        - { path: ^/role/,                    methods: [POST],      roles: ROLE_CREATE_ROLE }
+        - { path: ^/role/get/all,             methods: [GET],       roles: ROLE_LIST_ROLE }
+
+        #Report endpoints
+        #ROLE_ALL_REPORTS - get all reports without access ROLE_ALL_DOCUMENT
+        - { path: ^/report/paginate/\d+/\d+/[^/]+$,methods: [POST],      roles: ROLE_PAGINATE_REPORT }
+        - { path: ^/report/label/[0-9a-fA-F\-]+$,  methods: [PUT],       roles: ROLE_LABEL_REPORT }
+        - { path: ^/report/assign/[0-9a-fA-F\-]+$, methods: [PUT],       roles: ROLE_ASSIGN_REPORT }
+        - { path: ^/report/[0-9a-fA-F\-]+$,        methods: [GET],       roles: ROLE_GET_REPORT }
+        - { path: ^/report/[0-9a-fA-F\-]+$,        methods: [DELETE],    roles: ROLE_DELETE_REPORT }
+        - { path: ^/report/[0-9a-fA-F\-]+$,        methods: [PATCH],     roles: ROLE_PATCH_REPORT }
+        - { path: ^/report/[0-9a-fA-F\-]+$,        methods: [POST],      roles: ROLE_CREATE_REPORT }
+
+        #Template endpoints
+        - { path: ^/template/\d+/\d+/[^/]+$,  methods: [GET],     roles: ROLE_PAGINATE_TEMPLATE }
+        - { path: ^/template/[0-9a-fA-F\-]+$, methods: [GET],     roles: ROLE_GET_TEMPLATE }
+        - { path: ^/template/[0-9a-fA-F\-]+$, methods: [DELETE],  roles: ROLE_DELETE_TEMPLATE }
+        - { path: ^/template/[0-9a-fA-F\-]+$, methods: [PATCH],   roles: ROLE_PATCH_TEMPLATE }
+        - { path: ^/template,                 methods: [POST],    roles: ROLE_CREATE_TEMPLATE }
+
+        #Property endpoints
+        - { path: ^/property/\d+/\d+/[^/]+/[^/]+$, methods: [GET],       roles: ROLE_PAGINATE_PROPERTY }
+        - { path: ^/property/\d+$,                 methods: [GET],       roles: ROLE_GET_PROPERTY }
+        - { path: ^/property/\d+$,                 methods: [DELETE],    roles: ROLE_DELETE_PROPERTY }
+        - { path: ^/property/\d+$,                 methods: [PATCH],     roles: ROLE_PATCH_PROPERTY }
+        - { path: ^/property,                      methods: [POST],      roles: ROLE_CREATE_PROPERTY }
+
+        #Label endpoints
+        - { path: ^/label/\d+$,              methods: [DELETE],     roles: ROLE_DELETE_LABEL }
+        - { path: ^/label/\d+$,              methods: [PUT],        roles: ROLE_PATCH_LABEL }
+        - { path: ^/label,                   methods: [POST],       roles: ROLE_CREATE_LABEL }
+        - { path: ^/label/get/all,           methods: [GET],        roles: ROLE_LIST_LABEL }
+
+        #Role endpoints
+        - { path: ^/role/\d+$,               methods: [GET],         roles: ROLE_GET_ROLE }
+        - { path: ^/role/\d+$,               methods: [DELETE],      roles: ROLE_DELETE_ROLE }
+        - { path: ^/role/\d+$,               methods: [PATCH],       roles: ROLE_PATCH_ROLE }
+        - { path: ^/role,                    methods: [POST],        roles: ROLE_CREATE_ROLE }
+        - { path: ^/role/get/all,            methods: [GET],         roles: ROLE_LIST_ROLE }
+        
+        #Statistics endpoints
+        - { path: ^/statistics/property/\d+$, methods: [GET],        roles: ROLE_STATISTICS_PROPERTY }
+
+        #Utility endpoints
+        - { path: ^/utility/generate/pdf,    methods: [POST],       roles: ROLE_POST_PDF }
+        - { path: ^/utility/settings,        methods: [GET],        roles: ROLE_GET_SETTINGS }
+        - { path: ^/utility/settings,        methods: [PUT],        roles: ROLE_PUT_SETTINGS }
+
+        #Permission endpoints
+        - { path: ^/permission/get/all,      methods: [GET],        roles: ROLE_LIST_PERMISSION }
+
+        #Images endpoints
+        - { path: ^/image/property/\d+$,     methods: [POST],       roles: ROLE_PATCH_PROPERTY }
+        - { path: ^/image/settings/,         methods: [POST],       roles: ROLE_PUT_SETTINGS }

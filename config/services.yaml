@@ -1,0 +1,66 @@
+parameters:
+    mail_from_address: '%env(MAIL_FROM_ADDRESS)%'
+services:
+
+    _defaults:
+        autowire: true      
+        autoconfigure: true
+
+    App\:
+        resource: '../src/'
+        exclude:
+            - '../src/DependencyInjection/'
+            - '../src/Entity/'
+            - '../src/Kernel.php'
+
+    App\EventListener\ExceptionListener:
+        tags:
+            - { name: kernel.event_listener, event: kernel.exception, priority: 900 }
+
+    App\Repository\DocumentRepository:
+        arguments:
+            $logRepository: '@App\Repository\CULogRepository'
+    
+    App\Security\AccessTokenHandler:
+        arguments:
+            $repository: '@App\Repository\UserRepository'
+
+    App\Security\ApiAuthenticator:
+      arguments:
+            $accessTokenHandler: '@App\Security\AccessTokenHandler'
+            $repository: '@App\Repository\TokenRepository'
+            $entityManager: '@doctrine.orm.entity_manager'
+            $accessMap: '@security.access_map'
+
+    App\Security\CheckAuth:
+        arguments:
+            $reportRepository: '@App\Repository\ReportRepository'
+            $documentRepository: '@App\Repository\DocumentRepository'
+            $tokenRepository: '@App\Repository\TokenRepository'
+            $userRepository: '@App\Repository\UserRepository'
+            $security: '@security.helper'
+    
+    App\Command\FetchDBPropertiesToCacheCommand:
+        arguments:
+            $propertyRepository: '@App\Repository\PropertyRepository'
+            $cache : '@App\Service\RedisService'
+            $transformer : '@App\Transformer\PropertyTransformer'
+                
+    App\Command\FetchDBReportsToCacheCommand:
+        arguments:
+            $reportRepository: '@App\Repository\ReportRepository'
+            $settingRepository: '@App\Repository\SettingRepository'
+            $cache : '@App\Service\RedisService'
+            $transformer : '@App\Transformer\ReportTransformer'
+
+    App\Command\FetchDBDocumentsToCacheCommand:
+        arguments:
+            $documentRepository: '@App\Repository\DocumentRepository'
+            $settingRepository: '@App\Repository\SettingRepository'
+            $cache : '@App\Service\RedisService'
+            $transformer : '@App\Transformer\DocumentTransformer'
+
+    App\Command\ServerInitCommand:
+        tags: ['console.command']
+    App\Command\ServerFetchToCacheCommand:
+        tags: ['console.command']

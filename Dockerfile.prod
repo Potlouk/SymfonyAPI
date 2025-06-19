@@ -1,0 +1,37 @@
+FROM ghcr.io/roadrunner-server/roadrunner:2024 as roadrunner
+
+FROM php:8.3-alpine
+
+# Install necessary dependencies, including autoconf
+RUN apk add --no-cache libzip-dev zlib-dev pcre-dev icu-dev autoconf gcc g++ make
+
+# Install PHP extensions
+RUN --mount=type=bind,from=mlocati/php-extension-installer:2,source=/usr/bin/install-php-extensions,target=/usr/local/bin/install-php-extensions \
+    install-php-extensions @composer-2 opcache pdo pdo_pgsql zip intl sockets protobuf
+
+# Install Redis extension correctly
+RUN pecl install redis && \
+    docker-php-ext-enable redis
+
+# Copy RoadRunner binary
+COPY --from=roadrunner /usr/bin/rr /usr/local/bin/rr
+
+EXPOSE 8080/tcp
+
+WORKDIR /var/www/html
+
+ENV COMPOSER_ALLOW_SUPERUSER=1
+
+# Copy application files
+COPY . /var/www/html/
+
+# Install dependencies
+RUN composer install --optimize-autoloader --no-dev
+RUN chown -R www-data:www-data /var/www/html/var/cache
+
+RUN php bin/console doctrine:cache:clear-metadata --env=prod --no-debug
+
+RUN php bin/console cache:clear --env=prod --no-debug
+RUN php bin/console cache:warmup --env=prod --no-debug
+
+CMD ["rr", "serve", "-c", ".rr.yaml"]

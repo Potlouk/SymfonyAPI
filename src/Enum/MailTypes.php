@@ -1,0 +1,10 @@
+<?php
+
+namespace App\Enum;
+
+enum MailTypes {
+    case USER_SUBMITTED_NOTIFICATION;
+    case USER_SUCCESSFUL_SUBMIT;
+    case DOCUMENT_SUBMISSION_CREATED;
+    case DOCUMENT_SUBMISSION_REOPENED;
+}

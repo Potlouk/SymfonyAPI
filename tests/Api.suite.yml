@@ -1,0 +1,21 @@
+actor: ApiTester
+suite_namespace: App\Tests\Api
+modules:
+    enabled:
+        - Symfony:
+            environment: 'test'
+            app_path: 'src'
+        - REST:
+            url: http://localhost:8080
+            depends: Symfony
+            logResponse: false
+        - Db:
+            dsn: 'pgsql:host=postgres;port=5432;dbname=symfony_test'
+            user: 'postgres'
+            password: 'postgres'
+            dump: 'tests/_output/dump.sql'
+            transaction: true
+            populate: false
+            cleanup: false
+        - Doctrine:
+            depends: Symfony
