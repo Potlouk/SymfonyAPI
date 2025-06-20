@@ -2,7 +2,7 @@
 # Document manager REST API
 
 ## Overview  
-REST API built with Symfony that focuses on manipulating **documents** used for managing property buildings and supporting landlords'daily tasks.
+REST API built with Symfony that focuses on manipulating **documents** used for managing property buildings and supporting landlord's daily tasks.
 
 ## Tech Stack
 - **Symfony 6.4**
